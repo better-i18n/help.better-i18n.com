@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { detectLocale } from "@better-i18n/use-intl/server";
+import { detectLocale, getMessages } from "@better-i18n/use-intl/server";
 import { i18nConfig } from "../i18n.config";
 import { fetchLocales } from "../lib/locales";
 
@@ -10,6 +10,8 @@ export const Route = createFileRoute("/")({
       availableLocales: locales,
       defaultLocale: i18nConfig.defaultLocale,
     });
+
+    await getMessages({ project: i18nConfig.project, locale }).catch(() => {});
 
     throw redirect({
       to: "/$locale",

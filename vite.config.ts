@@ -53,6 +53,7 @@ export default defineConfig(async ({ mode }) => {
       "import.meta.env.PUBLIC_OG_BASE_URL": JSON.stringify(env.PUBLIC_OG_BASE_URL || ""),
     },
     resolve: {
+      conditions: ["worker", "webworker", "browser", "module", mode === "production" ? "production" : "development"],
       dedupe: ["react", "react-dom", "use-intl"],
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -84,6 +85,8 @@ export default defineConfig(async ({ mode }) => {
               crawlLinks: false,
               concurrency: 10,
               failOnError: false,
+              filter: (page: { path: string }) =>
+                pages.some((p) => p.path === page.path && p.prerender?.enabled === true),
             }
           : undefined,
       }),
