@@ -58,7 +58,7 @@ interface RouterContext {
 const BYPASS_LOCALE_CHECK = new Set(["api"]);
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  staleTime: 0,
+  staleTime: Infinity,
   beforeLoad: async ({ location }) => {
     const locales = await fetchLocales();
     const localeConfig = {
@@ -97,10 +97,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
 
   loader: async ({ context }) => {
-    const messages = await getMessages({ project: i18nConfig.project, locale: context.locale }).catch(() => ({}));
+    const messages = await getMessages({ project: i18nConfig.project, locale: context.locale }).catch(() => undefined);
 
     const isSSR = typeof document === "undefined";
-    if (isSSR) {
+    if (isSSR && messages) {
       if (ssrMessagesByRequest.size >= SSR_MAP_MAX_SIZE) {
         const firstKey = ssrMessagesByRequest.keys().next().value;
         if (firstKey) ssrMessagesByRequest.delete(firstKey);
@@ -184,7 +184,7 @@ function RootComponent() {
   const messages = (() => {
     if (typeof document === "undefined") {
       const msgs = ssrMessagesByRequest.get(requestId);
-      if (msgs) ssrMessagesByRequest.delete(requestId);
+      ssrMessagesByRequest.delete(requestId);
       return msgs;
     }
     return loaderData.messages ?? getClientMessages();

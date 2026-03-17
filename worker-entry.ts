@@ -23,7 +23,7 @@ function getCacheControl(
 
   const contentType = response.headers.get("Content-Type") || "";
   if (contentType.includes("text/html")) {
-    return "public, s-maxage=300, stale-while-revalidate=3600";
+    return "public, s-maxage=60, stale-while-revalidate=120";
   }
 
   return null;
