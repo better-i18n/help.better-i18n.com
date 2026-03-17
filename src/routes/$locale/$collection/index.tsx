@@ -58,6 +58,7 @@ export const Route = createFileRoute("/$locale/$collection/")({
 function CollectionPage() {
   const { collection, articles, locale } = Route.useLoaderData();
   const t = useT("collection");
+  const tArticle = useT("article");
 
   if (!collection) {
     return (
@@ -124,7 +125,7 @@ function CollectionPage() {
               <div className="flex items-center gap-2 shrink-0">
                 {article.difficulty && (
                   <Badge variant={article.difficulty}>
-                    {article.difficulty}
+                    {tArticle(`difficulty.${article.difficulty}`)}
                   </Badge>
                 )}
                 {article.readingTime && (
