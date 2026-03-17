@@ -6,7 +6,7 @@ export const Route = createFileRoute("/")({
     const locale = context.locale || i18nConfig.defaultLocale;
     throw redirect({
       to: "/$locale/",
-      params: { locale } as { locale: string },
+      params: { locale },
       statusCode: 301,
     });
   },
