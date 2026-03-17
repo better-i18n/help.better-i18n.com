@@ -10,9 +10,10 @@
     "deploy": "bun run build && wrangler deploy"
   },
   "dependencies": {
+    "@better-i18n/core": "^0.2.4",
     "@better-i18n/sdk": "^3.2.0",
     "@better-i18n/ui": "^0.1.1",
-    "@better-i18n/use-intl": "^0.1.15",
+    "@better-i18n/use-intl": "^0.1.17",
     "@central-icons-react/round-outlined-radius-2-stroke-2": "^1.1.90",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tailwindcss/vite": "^4.1.18",
@@ -22,7 +23,9 @@
     "@tanstack/router-plugin": "~1.149.0",
     "@tanstack/start-server-functions-server": "^1.131.2",
     "lucide-react": "^0.577.0",
+    "highlight.js": "^11.11.0",
     "marked": "^15.0.0",
+    "marked-highlight": "^2.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.18",
