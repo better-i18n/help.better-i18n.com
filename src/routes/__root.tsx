@@ -6,6 +6,7 @@ import {
   Link,
   redirect,
 } from "@tanstack/react-router";
+import type { RegisteredRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -84,11 +85,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
       await getMessages({ project: i18nConfig.project, locale: detectedLocale }).catch(() => {});
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      throw redirect({
+      throw redirect<RegisteredRouter, string>({
         href: `/${detectedLocale}${location.pathname}${search}${hash}`,
         statusCode: 301,
-      } as any);
+      });
     }
 
     const locale = getLocaleFromPath(location.pathname, localeConfig);
