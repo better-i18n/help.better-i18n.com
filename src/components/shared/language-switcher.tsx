@@ -1,79 +1,24 @@
-import { Button } from "@better-i18n/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@better-i18n/ui/components/dropdown-menu";
-import { cn } from "@better-i18n/ui/lib/utils";
-import { useLanguages, useLocaleRouter } from "@better-i18n/use-intl";
-import { IconGlobe, IconChevronDownSmall } from "@central-icons-react/round-outlined-radius-2-stroke-2";
+import { LocaleDropdown } from "@better-i18n/use-intl";
+import type { CSSProperties } from "react";
+
+const vars = {
+  "--better-locale-text": "var(--color-mist-600)",
+  "--better-locale-trigger-bg": "transparent",
+  "--better-locale-trigger-border": "1px solid transparent",
+  "--better-locale-trigger-radius": "6px",
+  "--better-locale-trigger-padding": "5px 12px",
+  "--better-locale-border": "var(--color-border)",
+  "--better-locale-menu-bg": "var(--color-card)",
+  "--better-locale-hover-bg": "var(--color-mist-100)",
+  "--better-locale-active-bg": "var(--color-mist-50)",
+  "--better-locale-code-text": "var(--color-mist-400)",
+  "--better-locale-accent": "var(--color-mist-600)",
+} as CSSProperties;
 
 export function LanguageSwitcher() {
-  const { locale, navigate, isReady } = useLocaleRouter();
-  const { languages, isLoading: isLoadingLangs } = useLanguages();
-
-  const handleChange = (newLocale: string) => {
-    navigate(newLocale);
-  };
-
-  const isLoading = !isReady || isLoadingLangs;
-  const currentLanguage = isLoading ? undefined : languages.find((l) => l.code === locale);
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={isLoading}
-          className={cn(
-            "h-9 px-3 font-medium text-mist-600 hover:text-mist-950 hover:bg-mist-100",
-            isLoading && "animate-pulse",
-          )}
-        >
-          {currentLanguage?.flagUrl ? (
-            <img
-              src={currentLanguage.flagUrl}
-              alt=""
-              className="h-4 w-4 rounded-full object-cover"
-            />
-          ) : (
-            <IconGlobe className="mr-2 h-4 w-4" />
-          )}
-          {currentLanguage?.nativeName || locale.toUpperCase()}
-          <IconChevronDownSmall className="ml-2 h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="min-w-[160px] max-h-[70vh] overflow-y-auto z-[100] bg-[var(--color-card)] border-[var(--color-border)]"
-      >
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => handleChange(lang.code)}
-            className={cn(
-              "flex items-center justify-between gap-3 cursor-pointer",
-              locale === lang.code ? "bg-mist-50 font-semibold" : "",
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              {lang.flagUrl && (
-                <img
-                  src={lang.flagUrl}
-                  alt=""
-                  className="h-4 w-4 rounded-full object-cover shrink-0"
-                />
-              )}
-              <span>{lang.nativeName}</span>
-            </div>
-            <span className="text-[10px] text-mist-400 uppercase font-mono">
-              {lang.code}
-            </span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div style={vars}>
+      <LocaleDropdown />
+    </div>
   );
 }
