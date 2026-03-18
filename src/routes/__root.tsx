@@ -59,6 +59,7 @@ interface RouterContext {
 const BYPASS_LOCALE_CHECK = new Set(["api"]);
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  staleTime: Infinity,
   beforeLoad: async ({ location }) => {
     const locales = await fetchLocales();
     const localeConfig = {
