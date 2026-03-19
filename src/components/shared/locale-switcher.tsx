@@ -4,11 +4,41 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useLocation } from "@tanstack/react-router";
 import { useLanguages } from "@better-i18n/use-intl";
 import type { LanguageOption } from "@better-i18n/core";
+import { getCachedLocales } from "@/lib/locales";
 
-// ─── Inline helpers (avoid dependency on core 0.3.0+ exports) ────────
+// ─── Inline helpers ──────────────────────────────────────────────────
 
 function getLabel(lang: LanguageOption): string {
   return lang.nativeName || lang.name || lang.code.toUpperCase();
+}
+
+/** Read locale codes from SSR-injected script tag */
+function readLocalesFromDOM(): string[] {
+  if (typeof document === "undefined") return [];
+  const el = document.getElementById("__i18n_locales__");
+  if (!el?.textContent) return [];
+  try {
+    const parsed = JSON.parse(el.textContent);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Get locale codes — tries cached first, then DOM, then CDN languages */
+function getAvailableLocales(richLanguages: LanguageOption[]): string[] {
+  // 1. Module-level cache (populated by beforeLoad → fetchLocales())
+  const cached = getCachedLocales();
+  if (cached.length > 1) return cached;
+
+  // 2. SSR-injected script tag
+  const fromDOM = readLocalesFromDOM();
+  if (fromDOM.length > 1) return fromDOM;
+
+  // 3. CDN manifest (useLanguages)
+  if (richLanguages.length > 0) return richLanguages.map((l) => l.code);
+
+  return cached; // fallback to whatever we have
 }
 
 /**
@@ -18,19 +48,33 @@ function getLabel(lang: LanguageOption): string {
  * prefixes in the URL (helpcenter uses $locale/ route structure where
  * ALL locales — including the default — have a URL prefix).
  *
+ * Reads locale codes from multiple sources (cache → DOM → CDN) to
+ * guarantee the dropdown works even if `useLanguages()` hasn't loaded.
+ *
  * On locale change:
  * 1. URL navigates → server loader re-runs → fresh translations
- * 2. Cookie is set by the provider on hydration
- * 3. All components (server + client) re-render with new locale
+ * 2. All components re-render with new locale
  */
 export function LocaleSwitcher() {
   const router = useRouter();
   const location = useLocation();
-  const { languages, isLoading } = useLanguages();
+  const { languages: richLanguages } = useLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
   const [focusIndex, setFocusIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Build language list from available sources
+  const localeCodes = useMemo(
+    () => getAvailableLocales(richLanguages),
+    [richLanguages],
+  );
+
+  // Merge: use rich LanguageOption when available, fallback to bare codes
+  const languages: LanguageOption[] = useMemo(() => {
+    if (richLanguages.length > 0) return richLanguages;
+    return localeCodes.map((code) => ({ code }));
+  }, [localeCodes, richLanguages]);
 
   // Extract current locale from URL (first path segment)
   const currentLocale = useMemo(() => {
@@ -59,7 +103,6 @@ export function LocaleSwitcher() {
 
       // Simple regex: replace first path segment with new locale
       // /tr/collection/article → /ar/collection/article
-      // /en → /ar
       const newPath = location.pathname.replace(/^\/[^/]+/, `/${newLocale}`);
       router.navigate({ to: newPath });
       setIsOpen(false);
@@ -125,52 +168,41 @@ export function LocaleSwitcher() {
     [isOpen, focusIndex, languages, handleSwitch],
   );
 
-  // Loading skeleton
-  if (isLoading) {
-    return (
-      <div className="inline-flex items-center gap-2 rounded-md px-3 py-1.5">
-        <span className="h-4 w-5 animate-pulse rounded-sm bg-mist-200" />
-        <span className="h-4 w-14 animate-pulse rounded bg-mist-200" />
-      </div>
-    );
-  }
+  if (!canToggle) return null;
 
   return (
     <div ref={containerRef} className="relative inline-block">
       {/* Trigger */}
       <button
         type="button"
-        onClick={() => canToggle && setIsOpen((prev) => !prev)}
+        onClick={() => setIsOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select language"
-        disabled={!canToggle}
-        className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-mist-600 transition-colors hover:text-mist-900 disabled:cursor-default disabled:opacity-70"
+        className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-mist-600 transition-colors hover:text-mist-900"
       >
         <FlagIcon language={currentLanguage} label={currentLabel} />
         <span>{currentLabel}</span>
-        {canToggle && (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            className="text-mist-400 transition-transform duration-200"
-            style={{ transform: isOpen ? "rotate(180deg)" : undefined }}
-          >
-            <path d="M20 9L13.4142 15.5858C12.6332 16.3668 11.3669 16.3668 10.5858 15.5858L4 9" />
-          </svg>
-        )}
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className="text-mist-400 transition-transform duration-200"
+          style={{ transform: isOpen ? "rotate(180deg)" : undefined }}
+        >
+          <path d="M20 9L13.4142 15.5858C12.6332 16.3668 11.3669 16.3668 10.5858 15.5858L4 9" />
+        </svg>
       </button>
 
       {/* Dropdown menu */}
-      {isOpen && canToggle && (
+      {isOpen && (
         <ul
           role="listbox"
           aria-label="Available languages"

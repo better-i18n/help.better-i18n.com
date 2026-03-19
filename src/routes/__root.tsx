@@ -14,7 +14,8 @@ import {
   getLocaleFromPath,
 } from "@better-i18n/use-intl";
 import type { Messages } from "@better-i18n/use-intl";
-import { getMessages, detectLocale } from "@better-i18n/use-intl/server";
+import type { LanguageOption } from "@better-i18n/core";
+import { getMessages, getLanguages, detectLocale } from "@better-i18n/use-intl/server";
 import { i18nConfig } from "../i18n.config";
 import { fetchLocales } from "../lib/locales";
 import appCss from "../styles.css?url";
@@ -26,6 +27,7 @@ import { useT } from "@/lib/i18n";
  * Keyed by unique requestId — safe under concurrent CF Worker requests.
  */
 const ssrMessagesByRequest = new Map<string, Messages>();
+const ssrLanguagesByRequest = new Map<string, LanguageOption[]>();
 const SSR_MAP_MAX_SIZE = 50;
 
 function getClientMessages(): Messages | undefined {
@@ -34,6 +36,17 @@ function getClientMessages(): Messages | undefined {
   if (!el?.textContent) return undefined;
   try {
     return JSON.parse(el.textContent) as Messages;
+  } catch {
+    return undefined;
+  }
+}
+
+function getClientLanguages(): LanguageOption[] | undefined {
+  if (typeof document === "undefined") return undefined;
+  const el = document.getElementById("__i18n_languages__");
+  if (!el?.textContent) return undefined;
+  try {
+    return JSON.parse(el.textContent) as LanguageOption[];
   } catch {
     return undefined;
   }
@@ -98,18 +111,31 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
 
   loader: async ({ context }) => {
-    const messages = await getMessages({ project: i18nConfig.project, locale: context.locale }).catch(() => undefined);
+    const [messages, languages] = await Promise.all([
+      getMessages({ project: i18nConfig.project, locale: context.locale }).catch(() => undefined),
+      getLanguages({ project: i18nConfig.project }).catch(() => undefined),
+    ]);
 
     const isSSR = typeof document === "undefined";
-    if (isSSR && messages) {
+    if (isSSR) {
+      // Evict oldest entries to bound memory
       if (ssrMessagesByRequest.size >= SSR_MAP_MAX_SIZE) {
         const firstKey = ssrMessagesByRequest.keys().next().value;
         if (firstKey) ssrMessagesByRequest.delete(firstKey);
       }
-      ssrMessagesByRequest.set(context.requestId, messages);
+      if (ssrLanguagesByRequest.size >= SSR_MAP_MAX_SIZE) {
+        const firstKey = ssrLanguagesByRequest.keys().next().value;
+        if (firstKey) ssrLanguagesByRequest.delete(firstKey);
+      }
+      if (messages) ssrMessagesByRequest.set(context.requestId, messages);
+      if (languages) ssrLanguagesByRequest.set(context.requestId, languages);
     }
 
-    return { locale: context.locale, messages: isSSR ? undefined : messages };
+    return {
+      locale: context.locale,
+      messages: isSSR ? undefined : messages,
+      languages: isSSR ? undefined : languages,
+    };
   },
 
   head: () => ({
@@ -191,6 +217,15 @@ function RootComponent() {
     return loaderData.messages ?? getClientMessages();
   })();
 
+  const languages = (() => {
+    if (typeof document === "undefined") {
+      const langs = ssrLanguagesByRequest.get(requestId);
+      ssrLanguagesByRequest.delete(requestId);
+      return langs;
+    }
+    return loaderData.languages ?? getClientLanguages();
+  })();
+
   return (
     <html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
       <head>
@@ -216,11 +251,19 @@ function RootComponent() {
         >
           {JSON.stringify(messages)}
         </script>
+        <script
+          type="application/json"
+          id="__i18n_languages__"
+          suppressHydrationWarning
+        >
+          {JSON.stringify(languages)}
+        </script>
         <QueryClientProvider client={queryClient}>
           <BetterI18nProvider
             project={i18nConfig.project}
             locale={locale}
             messages={messages}
+            initialLanguages={languages}
             timeZone="UTC"
             getMessageFallback={({ key }) => {
               const lastSegment = key.split(".").pop() || key;
