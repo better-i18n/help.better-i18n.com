@@ -8,6 +8,8 @@ import { CommandPalette, type CommandSource, type CommandItem } from "@/componen
 import { getCollectionsWithCounts, getArticles } from "@/lib/content";
 import { formatMetaTags, getDefaultStructuredData } from "@/lib/seo";
 import { getAlternateLinks, getCanonicalLink } from "@/lib/seo";
+import { getMetaMessages } from "@/lib/meta";
+import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
 import type { HelpCollection, HelpArticleListItem } from "@/lib/content";
 import { IconPageTextSearch } from "@central-icons-react/round-outlined-radius-2-stroke-2";
@@ -16,21 +18,24 @@ import { DynamicIcon } from "@/components/shared/dynamic-icon";
 export const Route = createFileRoute("/$locale/")({
   loader: async ({ params }) => {
     const { locale } = params;
-    const [collections, allArticles] = await Promise.all([
+    const [collections, allArticles, meta] = await Promise.all([
       getCollectionsWithCounts(locale),
       getArticles(locale),
+      getMetaMessages(locale),
     ]);
     const featuredArticles = allArticles.filter((a) => a.isFeatured).slice(0, 5);
-    return { collections, featuredArticles, allArticles, locale };
+    return { collections, featuredArticles, allArticles, locale, meta };
   },
 
-  head: ({ params }) => {
+  head: ({ loaderData, params }) => {
     const { locale } = params;
+    const meta = loaderData?.meta as MetaMessages | undefined;
     return {
       meta: formatMetaTags({
-        title: "Help Center | Better i18n",
-        description: "Find answers, guides, and resources for Better i18n. Learn how to manage translations, set up integrations, and get the most out of the platform.",
+        title: meta?.homeTitle ?? "Help Center | Better i18n",
+        description: meta?.homeDescription ?? "Find answers, guides, and resources for Better i18n.",
         locale,
+        siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
       }),
       links: [
         getCanonicalLink(locale),

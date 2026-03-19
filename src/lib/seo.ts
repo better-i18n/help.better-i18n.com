@@ -185,6 +185,8 @@ export function formatMetaTags(options: {
   pathname?: string;
   locales?: string[];
   ogImage?: string;
+  /** Localized site name for og:site_name (defaults to "Better i18n Help Center") */
+  siteName?: string;
 }) {
   const canonicalUrl = getCanonicalUrl(options.locale, options.pathname);
   const ogImageUrl = options.ogImage ?? buildOgImageUrl({
@@ -200,7 +202,7 @@ export function formatMetaTags(options: {
     { property: "og:description", content: options.description },
     { property: "og:type", content: "website" },
     { property: "og:url", content: canonicalUrl },
-    { property: "og:site_name", content: `${SITE_NAME} Help Center` },
+    { property: "og:site_name", content: options.siteName ?? `${SITE_NAME} Help Center` },
     { property: "og:locale", content: toOgLocale(options.locale) },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: options.title },

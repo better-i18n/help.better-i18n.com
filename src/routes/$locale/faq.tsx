@@ -12,14 +12,17 @@ import {
   getBreadcrumbSchema,
 } from "@/lib/seo";
 import { SITE_URL } from "@/lib/config";
+import { getMetaMessages } from "@/lib/meta";
+import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/$locale/faq")({
   loader: async ({ params }) => {
     const { locale } = params;
-    const [faqs, collections] = await Promise.all([
+    const [faqs, collections, meta] = await Promise.all([
       getFaqs(locale),
       getCollections(locale),
+      getMetaMessages(locale),
     ]);
 
     // Group FAQs by collection
@@ -45,26 +48,30 @@ export const Route = createFileRoute("/$locale/faq")({
       groups.unshift({ collection: null, faqs: ungrouped });
     }
 
-    return { faqs, groups, locale };
+    return { faqs, groups, locale, meta };
   },
 
   head: ({ params, loaderData }) => {
     const { locale } = params;
     const faqs = loaderData?.faqs ?? [];
+    const meta = loaderData?.meta as MetaMessages | undefined;
+    const helpCenterLabel = meta?.helpCenterLabel ?? "Help Center";
+    const faqLabel = meta?.faqLabel ?? "FAQ";
 
     const faqItems = faqs
-      .filter((f) => f.bodyHtml)
-      .map((f) => ({
+      .filter((f: HelpFaq) => f.bodyHtml)
+      .map((f: HelpFaq) => ({
         question: f.title,
         answer: f.bodyHtml!,
       }));
 
     return {
       meta: formatMetaTags({
-        title: "FAQ | Better i18n Help Center",
-        description: "Find answers to common questions about Better i18n — translations, integrations, and more.",
+        title: meta?.faqTitle ?? "FAQ | Better i18n Help Center",
+        description: meta?.faqDescription ?? "Find answers to common questions about Better i18n — translations, integrations, and more.",
         locale,
         pathname: "faq",
+        siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
       }),
       links: [
         getCanonicalLink(locale, "faq"),
@@ -74,8 +81,8 @@ export const Route = createFileRoute("/$locale/faq")({
         ...formatStructuredData([
           ...(faqItems.length > 0 ? [getFAQSchema(faqItems, locale)] : []),
           getBreadcrumbSchema([
-            { name: "Help Center", url: `${SITE_URL}/${locale}/` },
-            { name: "FAQ", url: `${SITE_URL}/${locale}/faq/` },
+            { name: helpCenterLabel, url: `${SITE_URL}/${locale}/` },
+            { name: faqLabel, url: `${SITE_URL}/${locale}/faq/` },
           ]),
         ]),
       ],

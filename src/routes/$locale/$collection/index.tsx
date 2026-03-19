@@ -8,29 +8,36 @@ import { getCollection, getArticles } from "@/lib/content";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getCollectionPageSchema, getBreadcrumbSchema } from "@/lib/seo";
 import { SITE_URL } from "@/lib/config";
+import { getMetaMessages } from "@/lib/meta";
+import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
 import { IconChevronRight } from "@central-icons-react/round-outlined-radius-2-stroke-2";
 
 export const Route = createFileRoute("/$locale/$collection/")({
   loader: async ({ params }) => {
     const { locale, collection: collectionSlug } = params;
-    const [collection, articles] = await Promise.all([
+    const [collection, articles, meta] = await Promise.all([
       getCollection(collectionSlug, locale),
       getArticles(locale, collectionSlug),
+      getMetaMessages(locale),
     ]);
-    return { collection, articles, locale, collectionSlug };
+    return { collection, articles, locale, collectionSlug, meta };
   },
 
   head: ({ loaderData, params }) => {
     const { locale, collection: collectionSlug } = params;
     const collection = loaderData?.collection;
+    const meta = loaderData?.meta as MetaMessages | undefined;
+    const helpCenterLabel = meta?.helpCenterLabel ?? "Help Center";
     const title = collection
-      ? `${collection.title} | Help Center | Better i18n`
-      : "Help Center | Better i18n";
-    const description = collection?.description || "Browse help articles for this category."; // i18n: collection.seo.defaultDescription
+      ? `${collection.title} | ${helpCenterLabel} | Better i18n`
+      : `${helpCenterLabel} | Better i18n`;
+    const description = collection?.description
+      || meta?.collectionDefaultDescription
+      || "Browse help articles for this category.";
 
     return {
-      meta: formatMetaTags({ title, description, locale }),
+      meta: formatMetaTags({ title, description, locale, siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined }),
       links: [
         getCanonicalLink(locale, `${collectionSlug}`),
         ...getAlternateLinks(`/${locale}/${collectionSlug}/`),
@@ -44,7 +51,7 @@ export const Route = createFileRoute("/$locale/$collection/")({
             inLanguage: locale,
           }),
           getBreadcrumbSchema([
-            { name: "Help Center", url: `${SITE_URL}/${locale}/` },
+            { name: helpCenterLabel, url: `${SITE_URL}/${locale}/` },
             { name: collection?.title || collectionSlug, url: `${SITE_URL}/${locale}/${collectionSlug}/` },
           ]),
         ]),

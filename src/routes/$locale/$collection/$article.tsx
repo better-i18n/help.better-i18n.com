@@ -12,15 +12,18 @@ import { addHeadingIds, extractTocFromHtml, stripFirstH1 } from "@/lib/utils";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getArticleSchema, getBreadcrumbSchema } from "@/lib/seo";
 import { SITE_URL } from "@/lib/config";
+import { getMetaMessages } from "@/lib/meta";
+import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/$locale/$collection/$article")({
   loader: async ({ params }) => {
     const { locale, collection: collectionSlug, article: articleSlug } = params;
-    const [article, collection, collectionArticles] = await Promise.all([
+    const [article, collection, collectionArticles, meta] = await Promise.all([
       getArticle(articleSlug, locale),
       getCollection(collectionSlug, locale),
       getArticles(locale, collectionSlug),
+      getMetaMessages(locale),
     ]);
 
     // Find prev/next articles in the collection
@@ -33,13 +36,15 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
       .filter((a) => a.slug !== articleSlug)
       .slice(0, 3);
 
-    return { article, collection, prev, next, relatedArticles, locale, collectionSlug };
+    return { article, collection, prev, next, relatedArticles, locale, collectionSlug, meta };
   },
 
   head: ({ loaderData, params }) => {
     const { locale, collection: collectionSlug, article: articleSlug } = params;
     const article = loaderData?.article;
     const collection = loaderData?.collection;
+    const meta = loaderData?.meta as MetaMessages | undefined;
+    const helpCenterLabel = meta?.helpCenterLabel ?? "Help Center";
 
     const title = article?.seoTitle || article?.title || articleSlug;
     const description = article?.seoDescription || article?.excerpt || "";
@@ -51,6 +56,7 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
           title: fullTitle,
           description,
           locale,
+          siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
         }),
         ...(article?.featuredImage ? [{ property: "og:image", content: article.featuredImage }] : []),
       ],
@@ -68,7 +74,7 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
             inLanguage: locale,
           }),
           getBreadcrumbSchema([
-            { name: "Help Center", url: `${SITE_URL}/${locale}/` },
+            { name: helpCenterLabel, url: `${SITE_URL}/${locale}/` },
             { name: collection?.title || collectionSlug, url: `${SITE_URL}/${locale}/${collectionSlug}/` },
             { name: title, url: `${SITE_URL}/${locale}/${collectionSlug}/${articleSlug}/` },
           ]),
