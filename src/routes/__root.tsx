@@ -264,6 +264,7 @@ function RootComponent() {
             locale={locale}
             messages={messages}
             initialLanguages={languages}
+            localePrefix="always"
             timeZone="UTC"
             getMessageFallback={({ key }) => {
               const lastSegment = key.split(".").pop() || key;
