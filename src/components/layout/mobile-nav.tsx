@@ -45,7 +45,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           </button>
         </div>
         <div className="px-4 py-6 text-sm text-mist-500">
-          Full navigation coming in Phase 2.
+          {t("mobileNav.placeholder", { defaultValue: "Full navigation coming soon." })}
         </div>
       </div>
     </>
