@@ -1,11 +1,16 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "help-center",
+  "name": "help-center-production",
   "main": "dist/worker-entry.js",
   "compatibility_date": "2025-01-15",
   "compatibility_flags": ["nodejs_compat"],
-  // Local dev: uses workers.dev subdomain (no custom domain)
-  "workers_dev": true,
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "help.better-i18n.com/*",
+      "zone_name": "better-i18n.com"
+    }
+  ],
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",
@@ -16,22 +21,7 @@
     "enabled": true
   },
   "vars": {
-    "ENVIRONMENT": "development",
+    "ENVIRONMENT": "production",
     "CDN_URL": "https://cdn.better-i18n.com"
-  },
-  "env": {
-    "production": {
-      "workers_dev": false,
-      "routes": [
-        {
-          "pattern": "help.better-i18n.com/*",
-          "zone_name": "better-i18n.com"
-        }
-      ],
-      "vars": {
-        "ENVIRONMENT": "production",
-        "CDN_URL": "https://cdn.better-i18n.com"
-      }
-    }
   }
 }
