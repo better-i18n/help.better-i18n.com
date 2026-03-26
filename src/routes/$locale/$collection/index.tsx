@@ -4,7 +4,7 @@ import { HelpLayout } from "@/components/layout/help-layout";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { DynamicIcon } from "@/components/shared/dynamic-icon";
 import { Badge } from "@/components/shared/badge";
-import { getCollection, getArticles } from "@/lib/content";
+import { getCollection, getArticles, getCollectionsWithCounts } from "@/lib/content";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getCollectionPageSchema, getBreadcrumbSchema } from "@/lib/seo";
 import { SITE_URL } from "@/lib/config";
@@ -16,12 +16,13 @@ import { IconChevronRight } from "@central-icons-react/round-outlined-radius-2-s
 export const Route = createFileRoute("/$locale/$collection/")({
   loader: async ({ params }) => {
     const { locale, collection: collectionSlug } = params;
-    const [collection, articles, meta] = await Promise.all([
+    const [collection, articles, allCollections, meta] = await Promise.all([
       getCollection(collectionSlug, locale),
       getArticles(locale, collectionSlug),
+      getCollectionsWithCounts(locale),
       getMetaMessages(locale),
     ]);
-    return { collection, articles, locale, collectionSlug, meta };
+    return { collection, articles, allCollections, locale, collectionSlug, meta };
   },
 
   head: ({ loaderData, params }) => {
@@ -63,13 +64,13 @@ export const Route = createFileRoute("/$locale/$collection/")({
 });
 
 function CollectionPage() {
-  const { collection, articles, locale } = Route.useLoaderData();
+  const { collection, articles, allCollections, locale } = Route.useLoaderData();
   const t = useT("collection");
   const tArticle = useT("article");
 
   if (!collection) {
     return (
-      <HelpLayout locale={locale}>
+      <HelpLayout locale={locale} collections={allCollections}>
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <h1 className="text-2xl font-semibold text-mist-950">
             {t("notFound")}
@@ -80,7 +81,7 @@ function CollectionPage() {
   }
 
   return (
-    <HelpLayout locale={locale}>
+    <HelpLayout locale={locale} collections={allCollections}>
       {/* Breadcrumb */}
       <div className="mx-auto max-w-5xl px-6 pt-6">
         <Breadcrumb

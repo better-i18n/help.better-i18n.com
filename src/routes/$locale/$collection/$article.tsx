@@ -7,7 +7,7 @@ import { ArticleMeta } from "@/components/article/article-meta";
 import { FeedbackWidget } from "@/components/article/feedback-widget";
 import { RelatedArticles } from "@/components/article/related-articles";
 import { ArticleNav } from "@/components/article/article-nav";
-import { getArticle, getArticles, getCollection } from "@/lib/content";
+import { getArticle, getArticles, getCollection, getCollectionsWithCounts } from "@/lib/content";
 import { addHeadingIds, extractTocFromHtml, stripFirstH1 } from "@/lib/utils";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getArticleSchema, getBreadcrumbSchema } from "@/lib/seo";
@@ -19,10 +19,11 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/$locale/$collection/$article")({
   loader: async ({ params }) => {
     const { locale, collection: collectionSlug, article: articleSlug } = params;
-    const [article, collection, collectionArticles, meta] = await Promise.all([
+    const [article, collection, collectionArticles, allCollections, meta] = await Promise.all([
       getArticle(articleSlug, locale),
       getCollection(collectionSlug, locale),
       getArticles(locale, collectionSlug),
+      getCollectionsWithCounts(locale),
       getMetaMessages(locale),
     ]);
 
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
       .filter((a) => a.slug !== articleSlug)
       .slice(0, 3);
 
-    return { article, collection, prev, next, relatedArticles, locale, collectionSlug, meta };
+    return { article, collection, allCollections, prev, next, relatedArticles, locale, collectionSlug, meta };
   },
 
   head: ({ loaderData, params }) => {
@@ -87,13 +88,13 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
 });
 
 function ArticlePage() {
-  const { article, collection, prev, next, relatedArticles, locale, collectionSlug } =
+  const { article, collection, allCollections, prev, next, relatedArticles, locale, collectionSlug } =
     Route.useLoaderData();
   const t = useT("article");
 
   if (!article) {
     return (
-      <HelpLayout locale={locale}>
+      <HelpLayout locale={locale} collections={allCollections}>
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <h1 className="text-2xl font-semibold text-mist-950">
             {t("notFound")}
@@ -107,7 +108,7 @@ function ArticlePage() {
   const tocItems = processedHtml ? extractTocFromHtml(processedHtml) : [];
 
   return (
-    <HelpLayout locale={locale}>
+    <HelpLayout locale={locale} collections={allCollections}>
       {/* Breadcrumb */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
         <Breadcrumb

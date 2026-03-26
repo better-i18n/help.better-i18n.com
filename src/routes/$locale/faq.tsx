@@ -48,7 +48,7 @@ export const Route = createFileRoute("/$locale/faq")({
       groups.unshift({ collection: null, faqs: ungrouped });
     }
 
-    return { faqs, groups, locale, meta };
+    return { faqs, groups, collections, locale, meta };
   },
 
   head: ({ params, loaderData }) => {
@@ -93,11 +93,11 @@ export const Route = createFileRoute("/$locale/faq")({
 });
 
 function FaqPage() {
-  const { faqs, groups, locale } = Route.useLoaderData();
+  const { faqs, groups, collections, locale } = Route.useLoaderData();
   const t = useT("faq");
 
   return (
-    <HelpLayout locale={locale}>
+    <HelpLayout locale={locale} collections={collections}>
       <div className="mx-auto max-w-3xl px-6 py-12">
         <header className="mb-10 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-mist-950 sm:text-3xl">

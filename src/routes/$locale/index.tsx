@@ -129,7 +129,7 @@ function HomePage() {
   }, []);
 
   return (
-    <HelpLayout locale={locale}>
+    <HelpLayout locale={locale} collections={collections}>
       <SearchHero onSearchClick={() => setCmdOpen(true)} />
       <CollectionGrid collections={collections} locale={locale} />
       <PopularArticles articles={featuredArticles} locale={locale} />
