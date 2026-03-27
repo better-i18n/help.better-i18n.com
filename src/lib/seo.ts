@@ -253,11 +253,10 @@ export function formatMetaTags(options: {
   ];
 
   // og:locale:alternate for other languages
-  if (options.locales) {
-    for (const alt of options.locales) {
-      if (alt !== options.locale) {
-        tags.push({ property: "og:locale:alternate", content: toOgLocale(alt) });
-      }
+  const altLocales = options.locales ?? getCachedLocales();
+  for (const alt of altLocales) {
+    if (alt !== options.locale) {
+      tags.push({ property: "og:locale:alternate", content: toOgLocale(alt) });
     }
   }
 
