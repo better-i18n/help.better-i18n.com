@@ -226,10 +226,12 @@ export function formatMetaTags(options: {
   articleSection?: string;
   /** Collection name for help center OG images (e.g. "Getting Started") */
   collection?: string;
+  /** Short title for OG image (without " | Help Center | Better i18n" suffix) */
+  ogTitle?: string;
 }) {
   const canonicalUrl = getCanonicalUrl(options.locale, options.pathname);
   const ogImageUrl = options.ogImage ?? buildOgImageUrl({
-    title: options.title,
+    title: options.ogTitle ?? options.title,
     description: options.description,
     site: "help",
     collection: options.collection,

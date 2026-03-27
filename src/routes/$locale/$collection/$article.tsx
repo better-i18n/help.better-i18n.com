@@ -12,7 +12,7 @@ import { addHeadingIds, extractTocFromHtml, stripFirstH1 } from "@/lib/utils";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getArticleSchema, getBreadcrumbSchema } from "@/lib/seo";
 import { SITE_URL, OG_BASE_URL } from "@/lib/config";
-import { getCachedLocales } from "@/lib/locales";
+import { fetchLocales } from "@/lib/locales";
 import { getMetaMessages } from "@/lib/meta";
 import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
@@ -20,12 +20,13 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/$locale/$collection/$article")({
   loader: async ({ params }) => {
     const { locale, collection: collectionSlug, article: articleSlug } = params;
-    const [article, collection, collectionArticles, allCollections, meta] = await Promise.all([
+    const [article, collection, collectionArticles, allCollections, meta, locales] = await Promise.all([
       getArticle(articleSlug, locale),
       getCollection(collectionSlug, locale),
       getArticles(locale, collectionSlug),
       getCollectionsWithCounts(locale),
       getMetaMessages(locale),
+      fetchLocales(),
     ]);
 
     // Find prev/next articles in the collection
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
       .filter((a) => a.slug !== articleSlug)
       .slice(0, 3);
 
-    return { article, collection, allCollections, prev, next, relatedArticles, locale, collectionSlug, meta };
+    return { article, collection, allCollections, prev, next, relatedArticles, locale, collectionSlug, meta, locales };
   },
 
   head: ({ loaderData, params }) => {
@@ -52,10 +53,10 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
     const description = article?.seoDescription || article?.excerpt || "";
     const fullTitle = `${title} | ${collection?.title || collectionSlug} | Better i18n`;
     const articleUrl = `${SITE_URL}/${locale}/${collectionSlug}/${articleSlug}/`;
-    const locales = getCachedLocales();
+    const locales = loaderData?.locales ?? ["en"];
 
     // Build OG image URL for structured data
-    const ogParams = new URLSearchParams({ title: fullTitle });
+    const ogParams = new URLSearchParams({ title });
     if (description) ogParams.set("description", description);
     if (collection?.title) ogParams.set("collection", collection.title);
     const ogImageUrl = article?.featuredImage
@@ -67,11 +68,13 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
         description,
         locale,
         locales,
+        pathname: `${collectionSlug}/${articleSlug}`,
         siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
         ogType: "article",
         articlePublishedTime: article?.lastReviewedAt || undefined,
         articleSection: collection?.title || undefined,
         collection: collection?.title || undefined,
+        ogTitle: title,
         ogImage: article?.featuredImage || undefined,
       }),
       links: [
