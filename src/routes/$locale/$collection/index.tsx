@@ -38,7 +38,7 @@ export const Route = createFileRoute("/$locale/$collection/")({
       || "Browse help articles for this category.";
 
     return {
-      meta: formatMetaTags({ title, description, locale, siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined }),
+      meta: formatMetaTags({ title, description, locale, siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined, collection: collection?.title, ogTitle: collection?.title }),
       links: [
         getCanonicalLink(locale, `${collectionSlug}`),
         ...getAlternateLinks(`/${locale}/${collectionSlug}/`),

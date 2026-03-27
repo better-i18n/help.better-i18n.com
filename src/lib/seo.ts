@@ -71,6 +71,14 @@ export function getWebSiteSchema(locale?: string) {
     name: `${SITE_NAME} ${locale ? "Help Center" : ""}`.trim(),
     url: SITE_URL,
     ...(locale && { inLanguage: locale }),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/{locale}/?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -97,7 +105,11 @@ interface ArticleSchemaOptions {
   description: string;
   url: string;
   dateModified?: string;
+  datePublished?: string;
+  author?: string;
   inLanguage?: string;
+  image?: string;
+  wordCount?: number;
 }
 
 export function getArticleSchema(options: ArticleSchemaOptions) {
@@ -108,6 +120,14 @@ export function getArticleSchema(options: ArticleSchemaOptions) {
     description: options.description,
     url: options.url,
     ...(options.dateModified && { dateModified: options.dateModified }),
+    ...(options.datePublished && { datePublished: options.datePublished }),
+    author: {
+      "@type": "Organization",
+      name: options.author ?? "Better i18n",
+      url: ORG_URL,
+    },
+    ...(options.wordCount && { wordCount: options.wordCount }),
+    ...(options.image && { image: options.image }),
     ...(options.inLanguage && { inLanguage: options.inLanguage }),
     publisher: {
       "@type": "Organization",
@@ -158,11 +178,25 @@ export function getCollectionPageSchema(options: {
 
 // ─── OG Image ───────────────────────────────────────────────────────
 
-function buildOgImageUrl(options: { title: string; description?: string; site?: string }) {
+function buildOgImageUrl(options: {
+  title: string;
+  description?: string;
+  site?: string;
+  collection?: string;
+  difficulty?: string;
+}) {
   if (!OG_BASE_URL) return undefined;
   const params = new URLSearchParams();
   params.set("title", options.title);
   if (options.description) params.set("description", options.description);
+
+  // Use dedicated /og/help endpoint when collection info is available
+  if (options.site === "help" && options.collection) {
+    params.set("collection", options.collection);
+    if (options.difficulty) params.set("difficulty", options.difficulty);
+    return `${OG_BASE_URL}/og/help?${params.toString()}`;
+  }
+
   if (options.site) params.set("site", options.site);
   return `${OG_BASE_URL}/og?${params.toString()}`;
 }
@@ -187,12 +221,20 @@ export function formatMetaTags(options: {
   ogImage?: string;
   /** Localized site name for og:site_name (defaults to "Better i18n Help Center") */
   siteName?: string;
+  ogType?: "website" | "article";
+  articlePublishedTime?: string;
+  articleSection?: string;
+  /** Collection name for help center OG images (e.g. "Getting Started") */
+  collection?: string;
+  /** Short title for OG image (without " | Help Center | Better i18n" suffix) */
+  ogTitle?: string;
 }) {
   const canonicalUrl = getCanonicalUrl(options.locale, options.pathname);
   const ogImageUrl = options.ogImage ?? buildOgImageUrl({
-    title: options.title,
+    title: options.ogTitle ?? options.title,
     description: options.description,
     site: "help",
+    collection: options.collection,
   });
 
   const tags = [
@@ -200,7 +242,7 @@ export function formatMetaTags(options: {
     { name: "description", content: options.description },
     { property: "og:title", content: options.title },
     { property: "og:description", content: options.description },
-    { property: "og:type", content: "website" },
+    { property: "og:type", content: options.ogType ?? "website" },
     { property: "og:url", content: canonicalUrl },
     { property: "og:site_name", content: options.siteName ?? `${SITE_NAME} Help Center` },
     { property: "og:locale", content: toOgLocale(options.locale) },
@@ -209,6 +251,25 @@ export function formatMetaTags(options: {
     { name: "twitter:description", content: options.description },
     { name: "robots", content: "index, follow" },
   ];
+
+  // og:locale:alternate for other languages
+  if (options.locales) {
+    for (const alt of options.locales) {
+      if (alt !== options.locale) {
+        tags.push({ property: "og:locale:alternate", content: toOgLocale(alt) });
+      }
+    }
+  }
+
+  // Article-specific Open Graph tags
+  if (options.ogType === "article") {
+    if (options.articlePublishedTime) {
+      tags.push({ property: "article:published_time", content: options.articlePublishedTime });
+    }
+    if (options.articleSection) {
+      tags.push({ property: "article:section", content: options.articleSection });
+    }
+  }
 
   if (ogImageUrl) {
     tags.push(

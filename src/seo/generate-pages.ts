@@ -44,6 +44,7 @@ interface CollectionMeta {
 interface ArticleMeta {
   readonly slug: string;
   readonly collectionSlug: string | null;
+  readonly lastReviewedAt: string | null;
 }
 
 export interface SeoData {
@@ -147,7 +148,7 @@ function generateCollectionPages(
 function generateArticlePages(
   articles: readonly ArticleMeta[],
   locales: readonly string[],
-  lastmod: string,
+  fallbackLastmod: string,
 ): readonly PageEntry[] {
   return articles
     .filter((a) => a.collectionSlug)
@@ -156,6 +157,10 @@ function generateArticlePages(
       const alternateRefs = buildAlternateRefs(locales, (locale) =>
         buildPageUrl(locale, pagePath),
       );
+      // Use article's lastReviewedAt if available, otherwise fall back to build date
+      const lastmod = article.lastReviewedAt
+        ? article.lastReviewedAt.split("T")[0]
+        : fallbackLastmod;
 
       return locales.map((locale): PageEntry => ({
         path: buildPagePath(locale, pagePath),
@@ -182,6 +187,7 @@ function toArticleMeta(item: ContentEntryListItem): ArticleMeta {
   return {
     slug: item.slug,
     collectionSlug: relations?.collection?.slug ?? null,
+    lastReviewedAt: (raw.last_reviewed_at as string | null) ?? null,
   };
 }
 
