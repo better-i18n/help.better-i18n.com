@@ -55,23 +55,25 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
     const locales = getCachedLocales();
 
     // Build OG image URL for structured data
+    const ogParams = new URLSearchParams({ title: fullTitle });
+    if (description) ogParams.set("description", description);
+    if (collection?.title) ogParams.set("collection", collection.title);
     const ogImageUrl = article?.featuredImage
-      ?? (OG_BASE_URL ? `${OG_BASE_URL}/og?title=${encodeURIComponent(fullTitle)}&description=${encodeURIComponent(description)}&site=help` : undefined);
+      ?? (OG_BASE_URL ? `${OG_BASE_URL}/og/help?${ogParams.toString()}` : undefined);
 
     return {
-      meta: [
-        ...formatMetaTags({
-          title: fullTitle,
-          description,
-          locale,
-          locales,
-          siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
-          ogType: "article",
-          articlePublishedTime: article?.lastReviewedAt || undefined,
-          articleSection: collection?.title || undefined,
-        }),
-        ...(article?.featuredImage ? [{ property: "og:image", content: article.featuredImage }] : []),
-      ],
+      meta: formatMetaTags({
+        title: fullTitle,
+        description,
+        locale,
+        locales,
+        siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
+        ogType: "article",
+        articlePublishedTime: article?.lastReviewedAt || undefined,
+        articleSection: collection?.title || undefined,
+        collection: collection?.title || undefined,
+        ogImage: article?.featuredImage || undefined,
+      }),
       links: [
         getCanonicalLink(locale, `${collectionSlug}/${articleSlug}`),
         ...getAlternateLinks(`/${locale}/${collectionSlug}/${articleSlug}/`),

@@ -178,11 +178,25 @@ export function getCollectionPageSchema(options: {
 
 // ─── OG Image ───────────────────────────────────────────────────────
 
-function buildOgImageUrl(options: { title: string; description?: string; site?: string }) {
+function buildOgImageUrl(options: {
+  title: string;
+  description?: string;
+  site?: string;
+  collection?: string;
+  difficulty?: string;
+}) {
   if (!OG_BASE_URL) return undefined;
   const params = new URLSearchParams();
   params.set("title", options.title);
   if (options.description) params.set("description", options.description);
+
+  // Use dedicated /og/help endpoint when collection info is available
+  if (options.site === "help" && options.collection) {
+    params.set("collection", options.collection);
+    if (options.difficulty) params.set("difficulty", options.difficulty);
+    return `${OG_BASE_URL}/og/help?${params.toString()}`;
+  }
+
   if (options.site) params.set("site", options.site);
   return `${OG_BASE_URL}/og?${params.toString()}`;
 }
@@ -210,12 +224,15 @@ export function formatMetaTags(options: {
   ogType?: "website" | "article";
   articlePublishedTime?: string;
   articleSection?: string;
+  /** Collection name for help center OG images (e.g. "Getting Started") */
+  collection?: string;
 }) {
   const canonicalUrl = getCanonicalUrl(options.locale, options.pathname);
   const ogImageUrl = options.ogImage ?? buildOgImageUrl({
     title: options.title,
     description: options.description,
     site: "help",
+    collection: options.collection,
   });
 
   const tags = [
