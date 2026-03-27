@@ -11,7 +11,8 @@ import { getArticle, getArticles, getCollection, getCollectionsWithCounts } from
 import { addHeadingIds, extractTocFromHtml, stripFirstH1 } from "@/lib/utils";
 import { formatMetaTags, getCanonicalLink, getAlternateLinks } from "@/lib/seo";
 import { formatStructuredData, getArticleSchema, getBreadcrumbSchema } from "@/lib/seo";
-import { SITE_URL } from "@/lib/config";
+import { SITE_URL, OG_BASE_URL } from "@/lib/config";
+import { getCachedLocales } from "@/lib/locales";
 import { getMetaMessages } from "@/lib/meta";
 import type { MetaMessages } from "@/lib/meta";
 import { useT } from "@/lib/i18n";
@@ -50,6 +51,12 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
     const title = article?.seoTitle || article?.title || articleSlug;
     const description = article?.seoDescription || article?.excerpt || "";
     const fullTitle = `${title} | ${collection?.title || collectionSlug} | Better i18n`;
+    const articleUrl = `${SITE_URL}/${locale}/${collectionSlug}/${articleSlug}/`;
+    const locales = getCachedLocales();
+
+    // Build OG image URL for structured data
+    const ogImageUrl = article?.featuredImage
+      ?? (OG_BASE_URL ? `${OG_BASE_URL}/og?title=${encodeURIComponent(fullTitle)}&description=${encodeURIComponent(description)}&site=help` : undefined);
 
     return {
       meta: [
@@ -57,7 +64,11 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
           title: fullTitle,
           description,
           locale,
+          locales,
           siteName: meta ? `Better i18n ${meta.helpCenterLabel}` : undefined,
+          ogType: "article",
+          articlePublishedTime: article?.lastReviewedAt || undefined,
+          articleSection: collection?.title || undefined,
         }),
         ...(article?.featuredImage ? [{ property: "og:image", content: article.featuredImage }] : []),
       ],
@@ -70,14 +81,18 @@ export const Route = createFileRoute("/$locale/$collection/$article")({
           getArticleSchema({
             title: fullTitle,
             description,
-            url: `${SITE_URL}/${locale}/${collectionSlug}/${articleSlug}/`,
+            url: articleUrl,
             dateModified: article?.lastReviewedAt || undefined,
+            datePublished: article?.lastReviewedAt || undefined,
+            author: "Better i18n",
+            wordCount: article?.readingTime ? article.readingTime * 200 : undefined,
+            image: ogImageUrl,
             inLanguage: locale,
           }),
           getBreadcrumbSchema([
             { name: helpCenterLabel, url: `${SITE_URL}/${locale}/` },
             { name: collection?.title || collectionSlug, url: `${SITE_URL}/${locale}/${collectionSlug}/` },
-            { name: title, url: `${SITE_URL}/${locale}/${collectionSlug}/${articleSlug}/` },
+            { name: title, url: articleUrl },
           ]),
         ]),
       ],
