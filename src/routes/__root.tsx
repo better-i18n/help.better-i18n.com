@@ -30,6 +30,21 @@ const ssrMessagesByRequest = new Map<string, Messages>();
 const ssrLanguagesByRequest = new Map<string, LanguageOption[]>();
 const SSR_MAP_MAX_SIZE = 50;
 
+/**
+ * Safely serialize JSON for embedding inside <script type="application/json"> tags.
+ * Escapes characters that would break HTML parsing: <, >, &, ', and line separators.
+ * Without this, translation values containing </script>, quotes, or HTML entities
+ * cause the HTML parser to prematurely close the script tag or corrupt the JSON.
+ */
+function safeJsonForScript(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 function getClientMessages(): Messages | undefined {
   if (typeof document === "undefined") return undefined;
   const el = document.getElementById("__i18n_messages__");
@@ -243,7 +258,7 @@ function RootComponent() {
           id="__i18n_locales__"
           suppressHydrationWarning
         >
-          {JSON.stringify(locales)}
+          {safeJsonForScript(locales)}
         </script>
       </head>
       <body className="text-mist-950">
@@ -252,14 +267,14 @@ function RootComponent() {
           id="__i18n_messages__"
           suppressHydrationWarning
         >
-          {JSON.stringify(messages)}
+          {safeJsonForScript(messages)}
         </script>
         <script
           type="application/json"
           id="__i18n_languages__"
           suppressHydrationWarning
         >
-          {JSON.stringify(languages)}
+          {safeJsonForScript(languages)}
         </script>
         <QueryClientProvider client={queryClient}>
           <BetterI18nProvider
