@@ -276,8 +276,12 @@ export async function getArticle(
       expand: ["collection"],
     });
 
-    const bodyHtml = entry.body ? String(await marked.parse(entry.body)) : null;
     const raw = entry as unknown as Record<string, unknown>;
+    // Prefer pre-rendered bodyHtml from API, fall back to parsing bodyMarkdown or body
+    const rawBodyHtml = raw.bodyHtml as string | null | undefined;
+    const rawBodyMarkdown = raw.bodyMarkdown as string | null | undefined;
+    const bodySource = rawBodyMarkdown ?? (typeof entry.body === "string" ? entry.body : null);
+    const bodyHtml = rawBodyHtml || (bodySource ? String(await marked.parse(bodySource)) : null);
     const rawLangs = raw.availableLanguages ?? raw.langs;
     const availableLanguages = Array.isArray(rawLangs)
       ? (rawLangs as unknown[]).filter((v): v is string => typeof v === "string")
@@ -347,13 +351,17 @@ export async function getFaqs(locale: string): Promise<HelpFaq[]> {
           .map(async (item) => {
             const raw = item as unknown as Record<string, unknown>;
             const relations = raw.relations as Record<string, RelationValue | null | undefined> | undefined;
-            const body = (item.body as string | undefined) ?? null;
+            const faqRaw = item as unknown as Record<string, unknown>;
+            const faqBody = (typeof item.body === "string" ? item.body : null);
+            const faqBodyHtml = faqRaw.bodyHtml as string | null | undefined;
+            const faqBodyMarkdown = faqRaw.bodyMarkdown as string | null | undefined;
+            const faqBodySource = faqBodyMarkdown ?? faqBody;
             return {
               id: item.slug,
               slug: item.slug,
               title: item.title,
-              body,
-              bodyHtml: body ? String(await marked.parse(body)) : null,
+              body: faqBody,
+              bodyHtml: faqBodyHtml || (faqBodySource ? String(await marked.parse(faqBodySource)) : null),
               collectionSlug: relations?.collection?.slug ?? null,
               order: Number(raw.order) || 0,
             };
