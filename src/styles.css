@@ -76,26 +76,26 @@
     color: var(--color-mist-950);
   }
 
-  /* Dark mode overrides */
+  /* Dark mode overrides — neutral warm tones */
   .dark {
-    --color-background: #0f1214;
-    --color-foreground: #e8eaec;
-    --color-card: #181c1e;
-    --color-border: #2a3135;
-    --color-muted: #1e2428;
-    --color-muted-foreground: #9ba8af;
+    --color-background: #0a0a0b;
+    --color-foreground: #f4f4f5;
+    --color-card: #141415;
+    --color-border: #27272a;
+    --color-muted: #1c1c1e;
+    --color-muted-foreground: #a1a1aa;
 
-    --color-mist-50: #141a1d;
-    --color-mist-100: #1a2226;
-    --color-mist-200: #2a3135;
-    --color-mist-300: #3a444a;
-    --color-mist-400: #6d7d85;
-    --color-mist-500: #9ba8af;
-    --color-mist-600: #b8c2c8;
-    --color-mist-700: #cdd4d8;
-    --color-mist-800: #dfe4e6;
-    --color-mist-900: #eef0f1;
-    --color-mist-950: #f7f8f8;
+    --color-mist-50: #121214;
+    --color-mist-100: #18181b;
+    --color-mist-200: #27272a;
+    --color-mist-300: #3f3f46;
+    --color-mist-400: #71717a;
+    --color-mist-500: #a1a1aa;
+    --color-mist-600: #d4d4d8;
+    --color-mist-700: #e4e4e7;
+    --color-mist-800: #f4f4f5;
+    --color-mist-900: #fafafa;
+    --color-mist-950: #ffffff;
   }
 }
 

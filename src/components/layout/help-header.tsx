@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useT } from "@/lib/i18n";
 import { LANDING_URL, SIGNUP_URL, SITE_NAME, LOGO_URL } from "@/lib/config";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import type { HelpCollection } from "@/lib/content";
 
@@ -77,7 +78,8 @@ export function HelpHeader({ locale, collections = [] }: HelpHeaderProps) {
           </div>
 
           {/* Right side */}
-          <nav className="ml-auto flex items-center gap-3">
+          <nav className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <div className="hidden lg:block">
               <LanguageSwitcher />
             </div>

@@ -5,6 +5,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { DynamicIcon } from "@/components/shared/dynamic-icon";
 import type { HelpCollection } from "@/lib/content";
 
@@ -119,9 +120,10 @@ export function MobileNav({ locale, collections, open, onClose }: MobileNavProps
           )}
         </nav>
 
-        {/* Footer: language switcher */}
-        <div className="shrink-0 border-t border-mist-200 px-3 py-3">
+        {/* Footer: language switcher + theme toggle */}
+        <div className="flex shrink-0 items-center justify-between border-t border-mist-200 px-3 py-3">
           <LanguageSwitcher />
+          <ThemeToggle />
         </div>
       </div>
     </>
