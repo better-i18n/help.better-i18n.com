@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { DynamicIcon } from "@/components/shared/dynamic-icon";
-import { useT } from "@/lib/i18n";
 import type { HelpCollection } from "@/lib/content";
 
 const COLOR_MAP: Record<string, { bg: string; text: string; border: string }> = {
@@ -20,36 +19,30 @@ interface CollectionCardProps {
 }
 
 export function CollectionCard({ collection, locale }: CollectionCardProps) {
-  const t = useT("home");
   const color = (collection.color && COLOR_MAP[collection.color]) || DEFAULT_COLOR;
 
   return (
     <Link
       to="/$locale/$collection/"
       params={{ locale, collection: collection.slug }}
-      className="group rounded-2xl border border-mist-200 bg-[var(--color-card)] p-6 shadow-[0_18px_50px_-40px_rgba(15,23,42,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="group rounded-2xl border border-mist-100 p-5 transition-all duration-200 hover:border-mist-200 hover:shadow-sm md:p-6"
     >
       {/* Icon */}
-      <div className={`flex size-11 items-center justify-center rounded-xl border shadow-sm ${color.bg} ${color.border}`}>
+      <div className={`flex size-10 items-center justify-center rounded-lg ${color.bg}`}>
         <DynamicIcon name={collection.icon} className={`size-5 ${color.text}`} />
       </div>
 
       {/* Title */}
-      <h3 className="mt-4 text-base font-medium text-mist-950 group-hover:text-mist-700 transition-colors">
+      <h3 className="mt-3.5 text-[15px] font-semibold text-mist-950">
         {collection.title}
       </h3>
 
       {/* Description */}
       {collection.description && (
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-mist-600">
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-mist-500">
           {collection.description}
         </p>
       )}
-
-      {/* Article count */}
-      <span className="mt-3 inline-flex items-center gap-1 text-xs text-mist-500">
-        {collection.articleCount} {t("articles")}
-      </span>
     </Link>
   );
 }

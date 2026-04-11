@@ -30,3 +30,9 @@ dist/
 .claude/
 .agents/
 skills-lock.json
+
+# Graphify knowledge graph (generated)
+graphify-out/
+
+# OpenLogs (dev server logs for AI)
+.openlogs/

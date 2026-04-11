@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { HelpLayout } from "@/components/layout/help-layout";
+import { HelpFooter } from "@/components/layout/help-footer";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { SearchHero } from "@/components/home/search-hero";
 import { CollectionGrid } from "@/components/home/collection-grid";
 import { PopularArticles } from "@/components/home/popular-articles";
@@ -110,6 +111,7 @@ function HomePage() {
   const { collections, featuredArticles, allArticles, locale } = Route.useLoaderData();
   const t = useT("common");
   const [cmdOpen, setCmdOpen] = React.useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
 
   const sources = React.useMemo(
     () => buildSources(collections, allArticles, locale, t),
@@ -129,10 +131,13 @@ function HomePage() {
   }, []);
 
   return (
-    <HelpLayout locale={locale} collections={collections}>
+    <div className="flex min-h-screen flex-col">
       <SearchHero onSearchClick={() => setCmdOpen(true)} />
-      <CollectionGrid collections={collections} locale={locale} />
-      <PopularArticles articles={featuredArticles} locale={locale} />
+      <main className="flex-1">
+        <CollectionGrid collections={collections} locale={locale} />
+        <PopularArticles articles={featuredArticles} locale={locale} />
+      </main>
+      <HelpFooter locale={locale} />
       <CommandPalette
         open={cmdOpen}
         onOpenChange={setCmdOpen}
@@ -140,6 +145,12 @@ function HomePage() {
         showRecents
         showPinnedFirst
       />
-    </HelpLayout>
+      <MobileNav
+        locale={locale}
+        collections={collections}
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+      />
+    </div>
   );
 }

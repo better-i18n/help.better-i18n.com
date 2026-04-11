@@ -1,6 +1,5 @@
 import { useT } from "@/lib/i18n";
 import { Badge } from "@/components/shared/badge";
-import { IconClock, IconCalendar1 } from "@central-icons-react/round-outlined-radius-2-stroke-2";
 import { formatDate } from "@/lib/utils";
 import type { HelpArticle } from "@/lib/content";
 
@@ -13,28 +12,26 @@ export function ArticleMeta({ article, locale }: ArticleMetaProps) {
   const t = useT("article");
 
   return (
-    <div className="flex flex-wrap items-center gap-3 text-sm text-mist-500">
-      {/* Reading time */}
+    <div className="flex flex-wrap items-center gap-2 text-[13px] text-mist-400">
       {article.readingTime && (
-        <span className="inline-flex items-center gap-1.5">
-          <IconClock className="size-3.5" />
-          {article.readingTime} {t("minRead")}
-        </span>
+        <span>{article.readingTime} {t("minRead")}</span>
       )}
 
-      {/* Last reviewed */}
+      {article.readingTime && article.lastReviewedAt && (
+        <span className="text-mist-200">&middot;</span>
+      )}
+
       {article.lastReviewedAt && (
-        <span className="inline-flex items-center gap-1.5">
-          <IconCalendar1 className="size-3.5" />
-          {t("updated")} {formatDate(article.lastReviewedAt, locale)}
-        </span>
+        <span>{t("updated")} {formatDate(article.lastReviewedAt, locale)}</span>
       )}
 
-      {/* Difficulty badge */}
       {article.difficulty && (
-        <Badge variant={article.difficulty}>
-          {t(`difficulty.${article.difficulty}`)}
-        </Badge>
+        <>
+          <span className="text-mist-200">&middot;</span>
+          <Badge variant={article.difficulty}>
+            {t(`difficulty.${article.difficulty}`)}
+          </Badge>
+        </>
       )}
     </div>
   );

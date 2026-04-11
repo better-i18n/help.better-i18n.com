@@ -129,41 +129,45 @@ function ArticlePage() {
 
   return (
     <HelpLayout locale={locale} collections={allCollections}>
-      {/* Breadcrumb */}
-      <div className="mx-auto max-w-7xl px-6 pt-6">
-        <Breadcrumb
-          locale={locale}
-          items={[
-            {
-              label: collection?.title || collectionSlug,
-              href: `/${locale}/${collectionSlug}/`,
-            },
-            { label: article.title },
-          ]}
-        />
+      {/* Gray header zone */}
+      <div className="bg-mist-50 pb-8 md:pb-10">
+        <div className="mx-auto max-w-5xl px-6 md:px-8">
+          {/* Breadcrumb */}
+          <div className="pt-5 pb-6">
+            <Breadcrumb
+              locale={locale}
+              items={[
+                {
+                  label: collection?.title || collectionSlug,
+                  href: `/${locale}/${collectionSlug}/`,
+                },
+                { label: article.title },
+              ]}
+            />
+          </div>
+
+          {/* Article title in gray zone */}
+          <h1 className="text-2xl font-semibold leading-tight tracking-tight text-mist-950 md:text-3xl">
+            {article.title}
+          </h1>
+          {article.excerpt && (
+            <p className="mt-2 text-base leading-relaxed text-mist-500">{article.excerpt}</p>
+          )}
+          <div className="mt-2">
+            <ArticleMeta article={article} locale={locale} />
+          </div>
+        </div>
       </div>
 
-      {/* 3-column layout: sidebar | content | TOC */}
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="flex gap-10">
+      {/* Content + sidebar */}
+      <div className="mx-auto max-w-5xl px-6 md:px-8">
+        <div className="flex gap-12">
           {/* Main content */}
-          <article className="min-w-0 flex-1 max-w-3xl">
-            {/* Article header */}
-            <header className="mb-8">
-              <h1 className="text-2xl font-semibold tracking-tight text-mist-950 sm:text-3xl">
-                {article.title}
-              </h1>
-              {article.excerpt && (
-                <p className="mt-3 text-lg text-mist-600">{article.excerpt}</p>
-              )}
-              <div className="mt-4">
-                <ArticleMeta article={article} locale={locale} />
-              </div>
-            </header>
+          <article className="min-w-0 flex-1 pt-8 pb-16 md:pt-10">
 
             {/* Featured image */}
             {article.featuredImage && (
-              <div className="mb-8 overflow-hidden rounded-xl border border-mist-200">
+              <div className="mb-10 overflow-hidden rounded-xl border border-mist-100">
                 <img
                   src={article.featuredImage}
                   alt={article.title}
@@ -175,7 +179,7 @@ function ArticlePage() {
 
             {/* Video embed */}
             {article.videoUrl && (
-              <div className="mb-8 aspect-video overflow-hidden rounded-xl border border-mist-200">
+              <div className="mb-10 aspect-video overflow-hidden rounded-xl border border-mist-100">
                 <iframe
                   src={article.videoUrl}
                   className="h-full w-full"
@@ -190,7 +194,7 @@ function ArticlePage() {
             {processedHtml && <ArticleBody html={processedHtml} />}
 
             {/* Feedback + Nav */}
-            <div className="mt-12 space-y-8">
+            <div className="mt-14 space-y-6">
               <FeedbackWidget articleSlug={article.slug} />
               <ArticleNav prev={prev} next={next} locale={locale} />
             </div>
@@ -198,7 +202,7 @@ function ArticlePage() {
 
           {/* Right sidebar: TOC + Related */}
           <aside className="hidden w-52 shrink-0 lg:block">
-            <div className="sticky top-20 space-y-8">
+            <div className="sticky top-6 space-y-10 pt-8 md:pt-10">
               <TableOfContents items={tocItems} />
               <RelatedArticles articles={relatedArticles} locale={locale} />
             </div>

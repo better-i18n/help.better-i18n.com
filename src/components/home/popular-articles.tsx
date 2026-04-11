@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { useT } from "@/lib/i18n";
-import { IconFileText, IconChevronRight } from "@central-icons-react/round-outlined-radius-2-stroke-2";
 import type { HelpArticleListItem } from "@/lib/content";
 
 interface PopularArticlesProps {
@@ -14,33 +13,34 @@ export function PopularArticles({ articles, locale }: PopularArticlesProps) {
   if (articles.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-5xl px-6 pb-12">
-      <h2 className="text-lg font-semibold text-mist-950">
+    <section className="mx-auto max-w-5xl px-6 pb-12 md:px-8">
+      <h2 className="text-base font-semibold text-mist-950">
         {t("popularArticles")}
       </h2>
-      <div className="mt-4 divide-y divide-mist-100 rounded-xl border border-mist-200 bg-[var(--color-card)]">
+      <ul className="mt-4 space-y-1">
         {articles.map((article) => (
-          <Link
-            key={article.slug}
-            to="/$locale/$collection/$article/"
-            params={{
-              locale,
-              collection: article.collectionSlug || "general",
-              article: article.slug,
-            }}
-            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-mist-50"
-          >
-            <IconFileText className="size-4 shrink-0 text-mist-400" />
-            <span className="flex-1 text-sm text-mist-700">{article.title}</span>
-            {article.readingTime && (
-              <span className="text-xs text-mist-400 shrink-0">
-                {article.readingTime} min
+          <li key={article.slug}>
+            <Link
+              to="/$locale/$collection/$article/"
+              params={{
+                locale,
+                collection: article.collectionSlug || "general",
+                article: article.slug,
+              }}
+              className="group flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-mist-50"
+            >
+              <span className="flex-1 text-sm text-mist-600 transition-colors group-hover:text-mist-950">
+                {article.title}
               </span>
-            )}
-            <IconChevronRight className="size-4 shrink-0 text-mist-300" />
-          </Link>
+              {article.readingTime && (
+                <span className="text-xs text-mist-400 shrink-0">
+                  {article.readingTime} min
+                </span>
+              )}
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

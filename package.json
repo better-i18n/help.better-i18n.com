@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3003",
+    "dev": "ol --name helpcenter vite dev --port 3003",
     "build": "vite build && bun run build:worker",
     "build:worker": "esbuild worker-entry.ts --outfile=dist/worker-entry.js --format=esm --platform=neutral",
     "preview": "wrangler dev --port 8991",

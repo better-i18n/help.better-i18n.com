@@ -1,4 +1,7 @@
 import { useT } from "@/lib/i18n";
+import { SITE_NAME, LOGO_URL, LANDING_URL, SIGNUP_URL } from "@/lib/config";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { IconQuickSearch } from "@central-icons-react/round-outlined-radius-2-stroke-2";
 
 interface SearchHeroProps {
@@ -7,38 +10,68 @@ interface SearchHeroProps {
 
 export function SearchHero({ onSearchClick }: SearchHeroProps) {
   const t = useT("home");
+  const tCommon = useT("common");
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#181c1e] via-[#262d30] to-[#333b3f] px-6 py-20 text-center sm:py-28">
-      {/* Decorative radial glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.15),transparent)]" />
+    <header className="bg-mist-50">
+      <div className="mx-auto max-w-5xl space-y-10 px-6 pt-6 pb-8 md:space-y-12 md:px-8 md:pt-8 md:pb-10">
+        {/* Nav bar */}
+        <nav className="flex items-center justify-between gap-3">
+          <a
+            href={LANDING_URL || "/"}
+            className="flex items-center gap-2 md:gap-2.5"
+          >
+            <img
+              src={LOGO_URL || "/logo.svg"}
+              alt={SITE_NAME}
+              width={20}
+              height={20}
+              className="size-4 shrink-0 rounded md:size-5 dark:invert"
+            />
+            <span className="text-sm font-medium text-mist-950 md:text-base">
+              {SITE_NAME}
+            </span>
+          </a>
 
-      {/* Subtle grid pattern */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0z\' fill=\'none\' stroke=\'white\' stroke-width=\'0.5\'/%3E%3C/svg%3E")' }} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
+            {SIGNUP_URL && (
+              <a
+                href={SIGNUP_URL}
+                className="rounded-full bg-mist-950 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-mist-800"
+              >
+                {tCommon("header.cta")}
+              </a>
+            )}
+          </div>
+        </nav>
 
-      <div className="relative">
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+        {/* Heading */}
+        <h1 className="pt-6 text-2xl font-semibold tracking-tight text-mist-950 md:pt-10 md:text-3xl">
           {t("title")}
         </h1>
-        <p className="mt-4 text-lg text-[#c9d1d5]">
-          {t("subtitle")}
-        </p>
 
-        {/* Search input — Intercom-style solid white */}
-        <div className="mx-auto mt-10 max-w-xl">
+        {/* Search bar */}
+        <div>
           <button
             type="button"
             onClick={onSearchClick}
-            className="flex w-full cursor-pointer items-center gap-3 rounded-2xl bg-[var(--color-card)] px-5 py-3.5 text-left shadow-lg shadow-black/10 transition-all hover:shadow-xl hover:shadow-black/15"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-left backdrop-blur-2xl md:gap-2.5 md:rounded-2xl md:px-5 md:py-4"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
           >
-            <IconQuickSearch className="size-5 shrink-0 text-mist-400" />
-            <span className="text-mist-500">{t("searchPlaceholder")}</span>
-            <kbd className="ml-auto hidden rounded-lg border border-mist-200 bg-mist-50 px-2 py-0.5 text-xs font-medium text-mist-400 sm:inline">
-              ⌘K
+            <IconQuickSearch className="size-5 shrink-0 opacity-40 md:size-6" />
+            <span className="w-full text-base opacity-50 md:text-lg">
+              {t("searchPlaceholder")}
+            </span>
+            <kbd className="pointer-events-none inline-flex h-6 shrink-0 items-center gap-0.5 rounded-sm bg-black/[0.075] px-2 text-xs font-medium text-mist-600 select-none backdrop-blur-md">
+              &#8984; + K
             </kbd>
           </button>
         </div>
       </div>
-    </section>
+    </header>
   );
 }

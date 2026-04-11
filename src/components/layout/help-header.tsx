@@ -18,75 +18,51 @@ export function HelpHeader({ locale, collections = [] }: HelpHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-10 h-14 border-b border-mist-200 bg-[var(--color-background)]/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-full max-w-7xl items-center gap-4 px-6">
-          {/* Hamburger button — mobile only */}
+      <header className="bg-mist-50">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-6 md:px-8">
+          {/* Hamburger — mobile only */}
           <button
             type="button"
             onClick={() => setMobileNavOpen(true)}
-            className="cursor-pointer rounded-lg p-1.5 text-mist-500 transition-colors hover:bg-mist-100 hover:text-mist-900 lg:hidden"
+            className="cursor-pointer rounded-lg p-1.5 text-mist-400 transition-colors hover:text-mist-900 lg:hidden"
             aria-label={t("mobileNav.open", { defaultValue: "Open navigation" })}
           >
-            <svg
-              className="size-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
+            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          {/* Logo — "Better I18N / Help" breadcrumb style */}
-          <div className="flex items-center gap-2.5">
-            {LANDING_URL ? (
-              <a
-                href={LANDING_URL}
-                className="flex items-center gap-2 font-semibold text-mist-950 transition-colors hover:text-mist-700"
-              >
-                <img
-                  src={LOGO_URL || "/logo.svg"}
-                  alt={SITE_NAME}
-                  width={24}
-                  height={24}
-                  className="shrink-0 dark:invert"
-                />
-                <span className="hidden sm:inline">{SITE_NAME}</span>
-              </a>
-            ) : (
-              <span className="flex items-center gap-2 font-semibold text-mist-950">
-                <img
-                  src={LOGO_URL || "/logo.svg"}
-                  alt={SITE_NAME}
-                  width={24}
-                  height={24}
-                  className="shrink-0 dark:invert"
-                />
-                <span className="hidden sm:inline">{SITE_NAME}</span>
-              </span>
-            )}
-            <span className="text-mist-300">/</span>
-            <Link
-              to="/$locale/"
-              params={{ locale }}
-              className="text-sm text-mist-500 transition-colors hover:text-mist-950"
-            >
-              {t("header.title")}
-            </Link>
-          </div>
+          {/* Logo */}
+          <a href={LANDING_URL || "/"} className="flex items-center gap-2 md:gap-2.5">
+            <img
+              src={LOGO_URL || "/logo.svg"}
+              alt={SITE_NAME}
+              width={20}
+              height={20}
+              className="size-4 shrink-0 rounded md:size-5 dark:invert"
+            />
+            <span className="text-sm font-medium text-mist-950 md:text-base">{SITE_NAME}</span>
+          </a>
+
+          <span className="text-mist-300">/</span>
+          <Link
+            to="/$locale/"
+            params={{ locale }}
+            className="text-sm text-mist-400 transition-colors hover:text-mist-950"
+          >
+            {t("header.title")}
+          </Link>
 
           {/* Right side */}
           <nav className="ml-auto flex items-center gap-2">
             <ThemeToggle />
-            <div className="hidden lg:block">
+            <div className="hidden sm:block">
               <LanguageSwitcher />
             </div>
             {SIGNUP_URL && (
               <a
                 href={SIGNUP_URL}
-                className="rounded-full bg-[var(--color-foreground)] px-4 py-1.5 text-sm font-medium text-[var(--color-background)] transition-colors hover:opacity-80"
+                className="rounded-full bg-mist-950 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-mist-800"
               >
                 {t("header.cta")}
               </a>
