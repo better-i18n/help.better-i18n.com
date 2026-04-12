@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+.wrangler/
+
+# Build outputs
+dist/
+
+# Lock files
+bun.lock
+
+# Generated
+*.d.ts
+
+# Config files
+vite.config.ts
+tsconfig.json
+
+# Static assets
+public/
