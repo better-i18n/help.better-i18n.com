@@ -4,7 +4,7 @@
  * Fetches collections, articles, and FAQs from Better i18n Content API.
  */
 
-import { createClient, type ContentClient } from "@better-i18n/sdk";
+import { createClient, extractLanguageCodes, hasLanguage, type ContentClient } from "@better-i18n/sdk";
 import { Marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js/lib/core";
@@ -142,12 +142,7 @@ function hasTranslation(
   item: Record<string, unknown>,
   locale: string,
 ): boolean {
-  const langs = item.availableLanguages ?? item.langs;
-  if (!Array.isArray(langs)) return true;
-  // Handle both string[] and {code}[] shapes from the content API
-  return (langs as Array<string | { code: string }>).some(
-    (v) => (typeof v === "string" ? v : v.code) === locale,
-  );
+  return hasLanguage(item, locale);
 }
 
 type RelationValue = {
@@ -286,16 +281,8 @@ export async function getArticle(
     const bodySource = rawBodyMarkdown ?? (typeof entry.body === "string" ? entry.body : null);
     const bodyHtml = rawBodyHtml || (bodySource ? String(await marked.parse(bodySource)) : null);
     const rawLangs = raw.availableLanguages ?? raw.langs;
-    const availableLanguages = Array.isArray(rawLangs)
-      ? (rawLangs as unknown[]).flatMap((v): string[] => {
-          if (typeof v === "string") return [v];
-          if (v !== null && typeof v === "object") {
-            const code = (v as Record<string, unknown>).code;
-            if (typeof code === "string") return [code];
-          }
-          return [];
-        })
-      : null;
+    const codes = extractLanguageCodes(rawLangs as (string | { code: string })[] | null);
+    const availableLanguages = codes.length > 0 ? codes : null;
 
     const relations = entry.relations as Record<string, RelationValue | null | undefined> | undefined;
 
