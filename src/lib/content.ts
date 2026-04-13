@@ -144,7 +144,10 @@ function hasTranslation(
 ): boolean {
   const langs = item.availableLanguages ?? item.langs;
   if (!Array.isArray(langs)) return true;
-  return (langs as string[]).includes(locale);
+  // Handle both string[] and {code}[] shapes from the content API
+  return (langs as Array<string | { code: string }>).some(
+    (v) => (typeof v === "string" ? v : v.code) === locale,
+  );
 }
 
 type RelationValue = {
@@ -284,7 +287,14 @@ export async function getArticle(
     const bodyHtml = rawBodyHtml || (bodySource ? String(await marked.parse(bodySource)) : null);
     const rawLangs = raw.availableLanguages ?? raw.langs;
     const availableLanguages = Array.isArray(rawLangs)
-      ? (rawLangs as unknown[]).filter((v): v is string => typeof v === "string")
+      ? (rawLangs as unknown[]).flatMap((v): string[] => {
+          if (typeof v === "string") return [v];
+          if (v !== null && typeof v === "object") {
+            const code = (v as Record<string, unknown>).code;
+            if (typeof code === "string") return [code];
+          }
+          return [];
+        })
       : null;
 
     const relations = entry.relations as Record<string, RelationValue | null | undefined> | undefined;
