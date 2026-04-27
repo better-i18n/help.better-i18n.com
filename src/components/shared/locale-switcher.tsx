@@ -180,7 +180,7 @@ export function LocaleSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select language"
-        className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-mist-600 transition-colors hover:text-mist-900"
+        className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-mist-500 transition-colors hover:text-mist-950"
       >
         <FlagIcon language={currentLanguage} label={currentLabel} />
         <span>{currentLabel}</span>
@@ -206,7 +206,7 @@ export function LocaleSwitcher() {
         <ul
           role="listbox"
           aria-label="Available languages"
-          className="absolute right-0 top-full z-50 mt-1 max-h-[70vh] min-w-[200px] overflow-y-auto rounded-xl border border-mist-200 bg-white p-0 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1 max-h-[70vh] min-w-[200px] overflow-y-auto rounded-xl border border-mist-200 bg-mist-50 p-0 shadow-lg dark:border-white/10"
         >
           {languages.map((language, index) => {
             const label = getLabel(language);
@@ -222,15 +222,15 @@ export function LocaleSwitcher() {
                 onMouseEnter={() => setFocusIndex(index)}
                 className={[
                   "flex cursor-pointer items-center gap-3 px-3.5 py-2 text-sm transition-colors",
-                  isActive ? "bg-mist-50" : "",
-                  isFocused && !isActive ? "bg-mist-100" : "",
+                  isActive ? "bg-mist-100 dark:bg-white/10" : "",
+                  isFocused && !isActive ? "bg-mist-100/70 dark:bg-white/5" : "",
                 ].join(" ")}
               >
                 <FlagIcon language={language} label={label} />
-                <span className="flex-1 text-mist-900">
+                <span className="flex-1 text-mist-950">
                   {label}
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-wider text-mist-400">
+                <span className="font-mono text-[10px] uppercase tracking-wider text-mist-500">
                   {language.code}
                 </span>
                 {isActive && (
@@ -244,7 +244,7 @@ export function LocaleSwitcher() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden="true"
-                    className="text-mist-600"
+                    className="text-mist-950"
                   >
                     <path d="M6 12l4.243 4.243L18.485 8" />
                   </svg>

@@ -41,7 +41,7 @@ export function SearchHero({ onSearchClick }: SearchHeroProps) {
             {SIGNUP_URL && (
               <a
                 href={SIGNUP_URL}
-                className="rounded-full bg-mist-950 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-mist-800"
+                className="rounded-full bg-mist-950 px-4 py-1.5 text-sm font-medium text-mist-50 transition-colors hover:bg-mist-800"
               >
                 {tCommon("header.cta")}
               </a>
