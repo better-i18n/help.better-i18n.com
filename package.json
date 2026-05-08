@@ -15,6 +15,7 @@
     "@better-i18n/ui": "^0.1.1",
     "@better-i18n/use-intl": "link:@better-i18n/use-intl",
     "@central-icons-react/round-outlined-radius-2-stroke-2": "^1.1.90",
+    "@helpway/react": "0.8.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
