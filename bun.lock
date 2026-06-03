@@ -10,7 +10,7 @@
         "@better-i18n/ui": "^0.1.1",
         "@better-i18n/use-intl": "link:@better-i18n/use-intl",
         "@central-icons-react/round-outlined-radius-2-stroke-2": "^1.1.90",
-        "@helpway/react": "0.9.0",
+        "@helpway/react": "0.12.1",
         "@radix-ui/react-dialog": "^1.1.15",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-query": "^5.90.20",
@@ -226,7 +226,7 @@
 
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.8.2", "", { "dependencies": { "@formatjs/fast-memoize": "3.1.1" } }, "sha512-q05KMYGJLyqFNFtIb8NhWLF5X3aK/k0wYt7dnRFuy6aLQL+vUwQ1cg5cO4qawEiINybeCPXAWlprY2mSBjSXAQ=="],
 
-    "@helpway/react": ["@helpway/react@0.9.0", "", { "dependencies": { "@trpc/client": "^11.5.1", "zustand": "^5.0.11" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-DBpvwmiaH0/Mu7UNBvxW3bDeVSF6kuRT48N6C7vWAiu7vTrG0DTzAn3wwhrM7sxVIZApNUaifSEVUHb1IQnSHw=="],
+    "@helpway/react": ["@helpway/react@0.12.1", "", { "dependencies": { "@trpc/client": "^11.5.1", "zustand": "^5.0.11" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-iobnvU7IpLweP+mVUmLSQAIcsg9R/9QE1pVWvVwmeCyX4sYrrsef+xDSWTFqEQ39yJHaZFVCCF2+D89XwKPK8w=="],
 
     "@icons-pack/react-simple-icons": ["@icons-pack/react-simple-icons@13.12.0", "", { "peerDependencies": { "react": "^16.13 || ^17 || ^18 || ^19" } }, "sha512-RCtXJw+tTG8fmBieqBJSRA5BItVcXCPN6QOIqIJMmLD7ESLr8nB78JrahheXofy8ZWH+Fpwxou0oElseObu1dw=="],
 
